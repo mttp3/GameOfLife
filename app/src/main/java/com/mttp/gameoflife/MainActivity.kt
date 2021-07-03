@@ -1,11 +1,10 @@
 package com.mttp.gameoflife
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.core.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.mttp.gameoflife.ui.theme.GameOfLifeTheme
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -17,13 +16,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlin.math.min
 
 class MainActivity : ComponentActivity() {
@@ -49,6 +45,17 @@ class MainActivity : ComponentActivity() {
 
                         var animate = remember { mutableStateOf(false) }
 
+                        Row(Modifier.align(Alignment.End)) {
+                            GotoEditButton()
+                            Spacer(Modifier.size(10.dp))
+                        }
+
+                        Spacer(Modifier.size(20.dp))
+
+                        AnimatedGrid(grid, animate.value)
+
+                        Spacer(Modifier.size(20.dp))
+
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                             Button(onClick = { grid.evolve() }) {
                                 Text("Evolve")
@@ -63,10 +70,6 @@ class MainActivity : ComponentActivity() {
                                 Text("Randomize")
                             }
                         }
-
-                        Spacer(Modifier.size(20.dp))
-
-                        AnimatedGrid(grid, animate.value)
                     }
                 }
             }
@@ -75,7 +78,19 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
+fun GotoEditButton() {
+    val context = LocalContext.current
+    Button(onClick = {
+        val intent = Intent(context, EditGridActivity::class.java)
+        context.startActivity(intent)
+    }) {
+        Text(text = "Grid Editor")
+    }
+}
+
+@Composable
 fun AnimatedGrid(grid: GameGrid, animate: Boolean) {
+    var generation = grid.generation
     if (animate) {
         var state = produceState(grid.generation) {
             while(true) {
@@ -83,15 +98,15 @@ fun AnimatedGrid(grid: GameGrid, animate: Boolean) {
                 delay(100L)
             }
         }
-        DrawGrid(grid, state.value)
+        generation = state.value
     }
-    else {
-        DrawGrid(grid, 0)
-    }
+    DrawGrid(grid)
+    Spacer(Modifier.size(10.dp))
+    Text("Generation: $generation")
 }
 
 @Composable
-fun DrawGrid(grid: GameGrid, frame: Int) {
+fun DrawGrid(grid: GameGrid) {
     Column {
         Canvas(
             Modifier.layout {
@@ -128,8 +143,6 @@ fun DrawGrid(grid: GameGrid, frame: Int) {
                 yCurrent = 0.0f
             }
         }
-        Spacer(Modifier.size(10.dp))
-        Text("Generation: " + grid.generation)
     }
 }
 

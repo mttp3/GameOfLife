@@ -14,6 +14,16 @@ class GameGrid( val width: Int = 10, val height: Int = 10 ) {
         }
         generation = 0
     }
+
+    fun clear() {
+        for (x in 0 until width) {
+            for (y in 0 until height) {
+                cell[x][y] = 0
+            }
+        }
+        generation = 0
+    }
+
     fun neighbours(x: Int, y: Int): Int {
         val xMin = (x - 1).coerceAtLeast(0)
         val xMax = (x + 1).coerceAtMost(width-1)
