@@ -6,13 +6,14 @@ class GameGrid( val width: Int = 10, val height: Int = 10 ) {
     var cell = Array(width) { Array(height) {0} }
     var generation : Int = 0
 
-    fun randomize() {
+    fun randomize(): GameGrid {
         for (x in 0 until width) {
             for (y in 0 until height) {
                 cell[x][y] = if (Random.nextBoolean()) 1 else 0
             }
         }
         generation = 0
+        return this
     }
 
     fun clear() {
@@ -40,7 +41,7 @@ class GameGrid( val width: Int = 10, val height: Int = 10 ) {
         return count
     }
 
-    fun evolve(): Int {
+    fun evolve(): GameGrid {
         var nextCell = cell.map { it.copyOf() }.toTypedArray()
 
         for (x in 0 until width) {
@@ -54,6 +55,6 @@ class GameGrid( val width: Int = 10, val height: Int = 10 ) {
         }
         cell = nextCell
         generation++
-        return generation
+        return this
     }
 }

@@ -24,11 +24,11 @@ import kotlin.math.min
 
 class MainActivity : ComponentActivity() {
 
-    private var grid = GameGrid(100, 100)
-
-    init {
-        grid.randomize()
-    }
+//    private var grid = GameGrid(100, 100)
+//
+//    init {
+//        grid.randomize()
+//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +43,9 @@ class MainActivity : ComponentActivity() {
 
                         Spacer(Modifier.size(10.dp))
 
-                        var animate = remember { mutableStateOf(false) }
+                        var animate by remember { mutableStateOf(false) }
+                        //var grid = remember { mutableStateOf( GameGrid(100, 100) ) }
+                        val (grid, setGrid) = remember { mutableStateOf( GameGrid(100, 100)) }
 
                         Row(Modifier.align(Alignment.End)) {
                             GotoEditButton()
@@ -52,21 +54,21 @@ class MainActivity : ComponentActivity() {
 
                         Spacer(Modifier.size(20.dp))
 
-                        AnimatedGrid(grid, animate.value)
+                        AnimatedGrid(grid, animate)
 
                         Spacer(Modifier.size(20.dp))
 
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                            Button(onClick = { grid.evolve() }) {
+                            Button(onClick = { setGrid( grid.evolve() ) }) {
                                 Text("Evolve")
                             }
-                            Button(onClick = { animate.value = true } ) {
+                            Button(onClick = { animate = true } ) {
                                 Text("Start")
                             }
-                            Button(onClick = { animate.value = false } ) {
+                            Button(onClick = { animate = false } ) {
                                 Text("Stop")
                             }
-                            Button(onClick = { grid.randomize() }) {
+                            Button(onClick = { setGrid( grid.randomize() ) } ) {
                                 Text("Randomize")
                             }
                         }
@@ -94,13 +96,15 @@ fun AnimatedGrid(grid: GameGrid, animate: Boolean) {
     if (animate) {
         var state = produceState(grid.generation) {
             while(true) {
-                value = grid.evolve()
+                grid.evolve()
+                value = grid.generation
                 delay(100L)
             }
         }
         generation = state.value
     }
-    DrawGrid(grid)
+    var displayGrid = grid
+    DrawGrid(displayGrid)
     Spacer(Modifier.size(10.dp))
     Text("Generation: $generation")
 }
@@ -136,6 +140,7 @@ fun DrawGrid(grid: GameGrid) {
             for (row in grid.cell) {
                 for (element in row) {
                     val color = if (element == 0) Color.White else Color.Black
+
                     drawRect(color, topLeft = Offset(xCurrent, yCurrent), size)
                     yCurrent += step
                 }
